@@ -7,18 +7,11 @@ Starter Next.js pentru descoperirea bălților de pescuit, prognoză meteo, scor
 - Homepage cu căutare, listă și hartă
 - Sortare după locația utilizatorului
 - Pagini individuale pentru bălți
-- Scor de pescuit pe ore și prognoză 7 zile prin Open-Meteo
+- Scor de pescuit pe ore și prognoză 7 zile, alimentate de Open-Meteo
 - Navigație prin Waze și Google Maps
 - Favorite salvate în localStorage
-- Scor FishCast pentru fiecare baltă, fără Google API
-- Notă personală de 1-5 stele, salvată în browser
+- Recenzii demo și integrare opțională Google Places
 - Design responsive
-
-## Cum funcționează ratingul
-
-`Scor FishCast` este un scor editorial inclus în datele fiecărei bălți. Poate fi stabilit manual pe baza accesului, facilităților, varietății speciilor, programului și calității informațiilor disponibile.
-
-Utilizatorul poate acorda și o notă personală. Nota se salvează local în browser și nu este agregată cu notele altor persoane. Pentru un rating public comun este necesară ulterior o bază de date precum Supabase.
 
 ## Pornire locală
 
@@ -36,15 +29,27 @@ Deschide `http://localhost:3000`.
 2. Urcă toate fișierele din acest folder în rădăcina repository-ului.
 3. În Vercel apasă **Add New → Project** și importă repository-ul.
 4. Vercel detectează automat Next.js. Lasă comenzile implicite și apasă **Deploy**.
+5. Pentru recenzii reale, mergi în **Project Settings → Environment Variables** și adaugă `GOOGLE_PLACES_API_KEY`.
+6. După adăugarea variabilei, redeploy aplicația.
 
-Nu este necesară nicio cheie Google API.
+## Google Places
+
+Cheia este opțională. În Google Cloud:
+
+1. Creează/selectează un proiect.
+2. Activează **Places API (New)**.
+3. Configurează billing și restricționează cheia pentru API-ul respectiv.
+4. Adaugă cheia numai ca variabilă server-side `GOOGLE_PLACES_API_KEY`; nu folosi prefixul `NEXT_PUBLIC_`.
+
+Endpoint-urile `/api/places` și `/api/reviews` sunt deja pregătite. Pentru fiecare baltă reală, salvează ID-ul Google în `googlePlaceId` din `lib/lakes.ts`.
 
 ## Cum adaugi o baltă
 
-Editează `lib/lakes.ts` și adaugă un obiect nou. Câmpul `rating` reprezintă Scorul FishCast pe o scară de la 1 la 5.
+Editează `lib/lakes.ts` și adaugă un obiect nou. Câmpurile esențiale sunt `id`, `name`, `lat`, `lng`, `hours`, `price`, `fish`, `facilities` și `description`.
 
 ## Limitări MVP
 
-- Favoritele și nota personală sunt per browser/dispozitiv.
+- Favoritele sunt per browser/dispozitiv. Pentru conturi și sincronizare folosește Supabase, Neon sau Vercel Postgres.
 - Scorul de pescuit este o estimare euristică, nu o predicție biologică garantată.
-- Datele despre program și tarife trebuie validate cu administratorii bălților.
+- Datele demo despre program și tarife trebuie validate cu administratorii bălților.
+- Pentru căutare publică la scară mare, folosește Google Places, Mapbox sau un serviciu Nominatim dedicat, nu instanța publică OSM în trafic intens.
