@@ -1,2 +1,54 @@
-export type Lake={id:string;name:string;county:string;locality:string;lat:number;lng:number;distance?:number;rating:number;price:string;hours:string;fish:string[];facilities:string[];description:string;image:string;waterType:string;access:string;phone?:string;website?:string};
-export type Weather={temperature:number;apparent:number;wind:number;windDirection:number;pressure:number;precipitation:number;cloudCover:number;sunrise:string;sunset:string;hourly:Array<{time:string;temperature:number;wind:number;pressure:number;precipitation:number;score:number}>;daily:Array<{date:string;score:number;min:number;max:number;wind:number;rain:number}>};
+export type FishingMode = 'retention' | 'catch-release'
+export type VerificationStatus = 'verified' | 'community-confirmed' | 'unverified' | 'possibly-closed'
+
+export interface Lake {
+  id: string
+  slug: string
+  name: string
+  county?: string
+  locality?: string
+  latitude: number
+  longitude: number
+  description?: string
+  species: string[]
+  fishingModes?: FishingMode[]
+  openingHours?: string
+  priceInfo?: string
+  phone?: string
+  website?: string
+  facilities: string[]
+  verificationStatus: VerificationStatus
+  verifiedAt?: string
+  sourceUrl?: string
+  sourceName?: string
+  imageUrl?: string
+  rating?: number
+  ratingCount?: number
+  distanceKm?: number
+}
+
+export interface WeatherHour {
+  time: string
+  temperature: number
+  apparentTemperature: number
+  pressure: number
+  humidity: number
+  precipitationProbability: number
+  precipitation: number
+  cloudCover: number
+  windSpeed: number
+  windGusts: number
+  weatherCode: number
+  score: number
+  verdict: string
+}
+
+export interface WeatherPayload {
+  current: WeatherHour
+  hourly: WeatherHour[]
+  daily: { date: string; sunrise: string; sunset: string; max: number; min: number; score: number }[]
+  station?: { code: string; name?: string; distanceKm?: number; observedAt?: string; temperature?: number; pressure?: number; windSpeed?: number }
+  waterTemperatureEstimate?: number
+  explanation: string[]
+  source: string
+}

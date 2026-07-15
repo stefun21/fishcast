@@ -1,3 +1,0 @@
-export function fishingScore(input:{hour:number;pressure:number;wind:number;rain:number;temperature:number;cloud:number}){let s=55;if(input.hour>=5&&input.hour<=9)s+=22;else if(input.hour>=17&&input.hour<=21)s+=18;else if(input.hour>=11&&input.hour<=15)s-=12;if(input.pressure>=1008&&input.pressure<=1022)s+=10;if(input.wind>=4&&input.wind<=16)s+=8;else if(input.wind>28)s-=18;if(input.rain>2)s-=14;else if(input.rain>0)s+=3;if(input.temperature>=12&&input.temperature<=25)s+=6;if(input.cloud>=35&&input.cloud<=80)s+=5;return Math.max(10,Math.min(99,Math.round(s)));}
-export const scoreLabel=(s:number)=>s>=80?'Excelent':s>=65?'Bun':s>=45?'Moderat':'Slab';
-export const scoreClass=(s:number)=>s>=80?'excellent':s>=65?'good':s>=45?'medium':'poor';

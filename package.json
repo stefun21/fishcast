@@ -1,6 +1,6 @@
 {
-  "name": "fishcast-romania",
-  "version": "1.0.0",
+  "name": "fishcast-romania-pro",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,19 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/leaflet": "^1.9.16",
-    "leaflet": "^1.9.4",
     "lucide-react": "^0.468.0",
-    "next": "^15.5.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-leaflet": "^5.0.0"
+    "next": "15.5.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "typescript": "^5.7.0"
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.3",
+    "@types/react-dom": "^19.0.2",
+    "typescript": "^5.7.2"
   },
   "engines": {
     "node": "24.x"

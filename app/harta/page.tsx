@@ -1,2 +1,2 @@
-import MapLoader from '@/components/MapLoader';import {lakes} from '@/lib/lakes';
-export default function MapPage(){return <main className="shell section"><div className="section-title large"><div><span className="eyebrow">Explorează liber</span><h1>Harta bălților</h1><p>Apasă pe un marker pentru informații rapide și acces la pagina bălții.</p></div></div><div className="map-shell"><MapLoader lakes={lakes} height="680px"/></div></main>}
+import Explorer from '@/components/Explorer'
+export default function MapPage(){return <div className="container page"><p className="eyebrow">HARTA ROMÂNIEI</p><h1>Explorează locurile de pescuit</h1><p className="lead">Folosește localizarea și filtrele pentru a vedea mai întâi bălțile cele mai apropiate.</p><Explorer/></div>}
