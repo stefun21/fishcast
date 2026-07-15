@@ -1,0 +1,3 @@
+'use client';
+import Link from 'next/link';import {Fish,Heart,Map,Menu,X} from 'lucide-react';import {useState} from 'react';
+export default function Header(){const [open,setOpen]=useState(false);return <header className="header"><div className="shell header-inner"><Link href="/" className="brand"><span className="brand-mark"><Fish size={22}/></span><span>FishCast</span></Link><nav className={open?'nav open':'nav'}><Link href="/">Descoperă</Link><Link href="/harta"><Map size={17}/> Hartă</Link><Link href="/favorite"><Heart size={17}/> Favorite</Link></nav><button className="menu" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button></div></header>}
