@@ -702,3 +702,7 @@ h1, h2, h3, p { margin-top: 0; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* Puzzle 12+13 */
+.location-button:disabled{opacity:.65;cursor:wait}.place-enrichment{display:grid;gap:5px;margin:14px 0 18px}.place-enrichment strong{color:#e7fff4}.place-enrichment small{max-width:720px;color:var(--muted);line-height:1.5}.source-panel p:not(.section-kicker){margin:12px 0 20px;color:var(--muted);line-height:1.65}.source-actions{display:flex;flex-wrap:wrap;gap:10px}.source-actions a{padding:10px 13px;border:1px solid var(--border);border-radius:999px;background:rgba(88,230,169,.08);color:#c9f9e2;font-size:.75rem;font-weight:850}.source-actions a:hover{border-color:rgba(88,230,169,.35);color:var(--accent)}

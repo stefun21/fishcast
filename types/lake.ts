@@ -29,6 +29,7 @@ export interface Lake {
   phone?: string;
   website?: string;
   openingHours?: string;
+  detailHref?: string;
 }
 
 export interface GeneratedLake {

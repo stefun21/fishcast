@@ -50,7 +50,7 @@ export function LakeCard({
           </div>
         )}
 
-        <Link className="lake-card-link" href={`/lakes/${lake.id}`}>
+        <Link className="lake-card-link" href={lake.detailHref || `/lakes/${lake.id}`}>
           Vezi detalii <Icon name="arrow" size={16} />
         </Link>
       </div>
