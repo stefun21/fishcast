@@ -3,14 +3,15 @@ import { createInterface } from "node:readline";
 import { resolve } from "node:path";
 
 const input = resolve(process.argv[2] || "tmp/fishing.geojsonseq");
-const output = resolve(process.argv[3] || "data/lakes.generated.json");
-const metadataOutput = resolve(process.argv[4] || "data/catalog-meta.json");
+const output = resolve(process.argv[3] || "tmp/osm-lakes.json");
+const metadataOutput = resolve(process.argv[4] || "tmp/osm-meta.json");
 const syncedAt = new Date().toISOString();
 
 if (!existsSync(input)) throw new Error(`Fișierul de intrare nu există: ${input}`);
 
 const fishingWords = /pesc|fishing|fishery|balta|baltă|iaz|heleșteu|helesteu|piscicol|acvacultur|aquaculture/i;
-const discardWords = /stație|statie|canalizare|epurare|rezervor apă|castel de apă|depozit|carieră|cariera/i;
+const waterWords = /lac|lake|liman|lagun|balta|baltă|iaz|heleșteu|helesteu|acumulare|baraj|rezervor/i;
+const discardWords = /stație|statie|canalizare|epurare|rezervor apă|castel de apă|depozit|carieră|cariera|piscină|piscina|fântână|fantana/i;
 const genericNames = /^(lac|balta|baltă|iaz|heleșteu|helesteu|acumulare|pescărie|pescarie)$/i;
 
 function clean(value) {
@@ -71,32 +72,40 @@ function classify(tags, name) {
     category = "fishing";
   }
   if (tags.landuse === "aquaculture") {
-    score += 74;
+    score += 76;
     labels.push("Amenajare piscicolă");
     category = category === "fishing" ? category : "aquaculture";
   }
+  if (tags.natural === "water") score += 12;
+  if (tags.water === "lake") {
+    score += 26;
+    labels.push("Lac");
+    if (category === "water") category = "water";
+  }
   if (tags.water === "pond") {
-    score += 24;
+    score += 32;
     labels.push("Iaz");
     if (category === "water") category = "pond";
   }
-  if (tags.water === "reservoir") {
-    score += 12;
+  if (tags.water === "reservoir" || tags.landuse === "reservoir") {
+    score += 28;
     labels.push("Acumulare");
     if (category === "water") category = "reservoir";
   }
-  if (fishingWords.test(name || "")) score += 38;
+  if (fishingWords.test(name || "")) score += 42;
+  else if (waterWords.test(name || "")) score += 18;
   if (tags.website || tags["contact:website"]) score += 16;
   if (tags.phone || tags["contact:phone"]) score += 16;
   if (tags.opening_hours) score += 8;
-  if (tags.name) score += 8;
+  if (tags.name) score += 10;
+  if (tags.access === "private" || tags.access === "customers" || tags.access === "permit") score += 6;
   if (genericNames.test(name || "")) score -= 10;
   if (discardWords.test(name || "")) score -= 120;
 
   const qualityScore = Math.max(0, Math.min(100, score));
   const confidence = qualityScore >= 90 && (tags.website || tags.phone || tags["contact:website"] || tags["contact:phone"])
     ? "verified"
-    : qualityScore >= 60
+    : qualityScore >= 55
       ? "likely"
       : "limited";
 
@@ -124,14 +133,14 @@ for await (let line of reader) {
   stats.parsed += 1;
 
   const tags = feature.properties || {};
-  const name = clean(tags["name:ro"] || tags.name || tags["official_name"]);
+  const name = clean(tags["name:ro"] || tags.name || tags.official_name || tags.alt_name);
   if (!name) {
     stats.rejectedUnnamed += 1;
     continue;
   }
 
   const classification = classify(tags, name);
-  if (classification.score < 45) {
+  if (classification.score < 36) {
     stats.rejectedLowScore += 1;
     continue;
   }
@@ -208,5 +217,4 @@ const metadata = {
 mkdirSync(resolve(output, ".."), { recursive: true });
 writeFileSync(output, `${JSON.stringify(deduped, null, 2)}\n`, "utf8");
 writeFileSync(metadataOutput, `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
-console.log(`Generate: ${deduped.length} locații în ${output}`);
-console.log(`Duplicate eliminate: ${stats.duplicates}`);
+console.log(`Generate OSM: ${deduped.length} locații în ${output}`);
