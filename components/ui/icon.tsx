@@ -13,7 +13,9 @@ type IconName =
   | "star"
   | "route"
   | "location"
-  | "check";
+  | "check"
+  | "wind"
+  | "pressure";
 
 type IconProps = HTMLAttributes<HTMLSpanElement> & {
   name: IconName;
@@ -35,6 +37,8 @@ const symbols: Record<IconName, string> = {
   route: "↗",
   location: "◉",
   check: "✓",
+  wind: "≋",
+  pressure: "↕",
 };
 
 export function Icon({
