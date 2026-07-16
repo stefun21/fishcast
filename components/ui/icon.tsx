@@ -1,29 +1,14 @@
 import type { HTMLAttributes } from "react";
 
-type IconName =
-  | "heart"
-  | "heart-filled"
-  | "map-pin"
-  | "navigation"
-  | "fish"
-  | "search"
-  | "clock"
-  | "phone"
-  | "globe"
-  | "star"
-  | "route"
-  | "location"
-  | "check"
-  | "wind"
-  | "pressure";
+export type IconName = string;
 
 type IconProps = HTMLAttributes<HTMLSpanElement> & {
-  name: IconName;
+  name: string;
   size?: number;
   label?: string;
 };
 
-const symbols: Record<IconName, string> = {
+const symbols: Record<string, string> = {
   heart: "♡",
   "heart-filled": "♥",
   "map-pin": "📍",
@@ -39,6 +24,7 @@ const symbols: Record<IconName, string> = {
   check: "✓",
   wind: "≋",
   pressure: "↕",
+  arrow: "→",
 };
 
 export function Icon({
@@ -66,7 +52,7 @@ export function Icon({
       }}
       {...props}
     >
-      {symbols[name]}
+      {symbols[name] ?? "•"}
     </span>
   );
 }
