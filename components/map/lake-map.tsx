@@ -5,6 +5,12 @@ import type { Lake } from "@/types/lake";
 
 type Position = { latitude: number; longitude: number } | null;
 
+function markerClass(category?: Lake["category"], confidence?: Lake["confidence"]) {
+  const categoryClass = category ? `fishcast-marker-${category}` : "fishcast-marker-water";
+  const confidenceClass = confidence ? `fishcast-marker-${confidence}` : "fishcast-marker-limited";
+  return `fishcast-map-marker ${categoryClass} ${confidenceClass}`;
+}
+
 export function LakeMap({
   lakes,
   position,
@@ -14,7 +20,8 @@ export function LakeMap({
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<import("leaflet").Map | null>(null);
-  const markersRef = useRef<import("leaflet").LayerGroup | null>(null);
+  const clustersRef = useRef<import("leaflet").MarkerClusterGroup | null>(null);
+  const userLayerRef = useRef<import("leaflet").LayerGroup | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
 
@@ -26,6 +33,7 @@ export function LakeMap({
 
       try {
         const L = await import("leaflet");
+        await import("leaflet.markercluster");
         if (cancelled || !containerRef.current) return;
 
         const map = L.map(containerRef.current, {
@@ -41,12 +49,24 @@ export function LakeMap({
           maxZoom: 19,
         }).addTo(map);
 
-        const markers = L.layerGroup().addTo(map);
-        mapRef.current = map;
-        markersRef.current = markers;
-        setMapReady(true);
+        const clusters = L.markerClusterGroup({
+          chunkedLoading: true,
+          chunkInterval: 80,
+          chunkDelay: 30,
+          removeOutsideVisibleBounds: true,
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: true,
+          disableClusteringAtZoom: 14,
+          maxClusterRadius: 54,
+        });
+        clusters.addTo(map);
 
-        window.setTimeout(() => map.invalidateSize(), 50);
+        const userLayer = L.layerGroup().addTo(map);
+        mapRef.current = map;
+        clustersRef.current = clusters;
+        userLayerRef.current = userLayer;
+        setMapReady(true);
+        window.setTimeout(() => map.invalidateSize(), 80);
       } catch (error) {
         console.error("FishCast map init failed", error);
         setMapError("Harta nu a putut fi încărcată. Reîncearcă după reîmprospătarea paginii.");
@@ -59,7 +79,8 @@ export function LakeMap({
       cancelled = true;
       mapRef.current?.remove();
       mapRef.current = null;
-      markersRef.current = null;
+      clustersRef.current = null;
+      userLayerRef.current = null;
       setMapReady(false);
     };
   }, []);
@@ -69,61 +90,62 @@ export function LakeMap({
 
     async function updateMarkers() {
       const map = mapRef.current;
-      const markers = markersRef.current;
-      if (!map || !markers) return;
+      const clusters = clustersRef.current;
+      const userLayer = userLayerRef.current;
+      if (!map || !clusters || !userLayer) return;
 
       const L = await import("leaflet");
-      markers.clearLayers();
-
+      clusters.clearLayers();
+      userLayer.clearLayers();
       const bounds = L.latLngBounds([]);
-      const renderer = L.canvas({ padding: 0.5 });
+      const markers: import("leaflet").Marker[] = [];
 
       for (const { lake, distance } of lakes) {
         if (!Number.isFinite(lake.latitude) || !Number.isFinite(lake.longitude)) continue;
 
-        const marker = L.circleMarker([lake.latitude, lake.longitude], {
-          renderer,
-          radius: 9,
-          weight: 3,
-          color: "#07111d",
-          fillColor: "#39e6a4",
-          fillOpacity: 0.95,
+        const icon = L.divIcon({
+          className: "fishcast-marker-wrapper",
+          html: `<span class="${markerClass(lake.category, lake.confidence)}" aria-hidden="true"></span>`,
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
+          popupAnchor: [0, -12],
         });
 
-        const detailsUrl = lake.source === "Catalog FishCast"
+        const marker = L.marker([lake.latitude, lake.longitude], { icon, keyboard: true, title: lake.name });
+        const detailsUrl = lake.detailHref || (lake.source === "Catalog FishCast"
           ? `/lakes/${encodeURIComponent(lake.id)}`
-          : `/place?name=${encodeURIComponent(lake.name)}&lat=${lake.latitude}&lon=${lake.longitude}&source=${encodeURIComponent(lake.source || "Sursă publică")}&sourceUrl=${encodeURIComponent(lake.sourceUrl || "")}&category=${encodeURIComponent(lake.category || "water")}`;
+          : `/place?name=${encodeURIComponent(lake.name)}&lat=${lake.latitude}&lon=${lake.longitude}&source=${encodeURIComponent(lake.source || "Sursă publică")}&sourceUrl=${encodeURIComponent(lake.sourceUrl || "")}&category=${encodeURIComponent(lake.category || "water")}`);
 
         marker.bindPopup(`
           <div class="fishcast-popup">
             <small>${lake.locality || "Localitate necunoscută"}${lake.county ? `, ${lake.county}` : ""}</small>
             <strong>${lake.name}</strong>
-            <span>${Math.round(distance)} km${lake.score ? ` · Index ${lake.score}` : ""}</span>
+            <span>${Number.isFinite(distance) && distance < 900 ? `${Math.round(distance)} km · ` : ""}${lake.tags[0] || "Corp de apă"}</span>
             <a href="${detailsUrl}">Vezi detalii</a>
           </div>
         `);
 
-        marker.addTo(markers);
+        markers.push(marker);
         bounds.extend([lake.latitude, lake.longitude]);
       }
 
+      clusters.addLayers(markers);
+
       if (position) {
         L.circleMarker([position.latitude, position.longitude], {
-          renderer,
           radius: 8,
           weight: 4,
           color: "#ffffff",
           fillColor: "#2f80ed",
           fillOpacity: 1,
-        }).bindTooltip("Poziția ta", { direction: "top" }).addTo(markers);
+        }).bindTooltip("Poziția ta", { direction: "top" }).addTo(userLayer);
         bounds.extend([position.latitude, position.longitude]);
       }
 
       if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [38, 38], maxZoom: 11 });
+        map.fitBounds(bounds, { padding: [38, 38], maxZoom: position ? 11 : 8 });
       }
-
-      window.setTimeout(() => map.invalidateSize(), 50);
+      window.setTimeout(() => map.invalidateSize(), 80);
     }
 
     void updateMarkers().catch((error) => {
@@ -141,7 +163,7 @@ export function LakeMap({
       <div ref={containerRef} className="lake-map" />
       <div className="lake-map-caption">
         <span><strong>{lakes.length}</strong> locații pe hartă</span>
-        <small>{mapReady ? "Apasă pe un marker pentru detalii" : "Se încarcă harta..."}</small>
+        <small>{mapReady ? "Marker-ele apropiate sunt grupate automat" : "Se încarcă harta..."}</small>
       </div>
     </section>
   );

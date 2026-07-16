@@ -749,3 +749,23 @@ h1, h2, h3, p { margin-top: 0; }
   .filter-control-group { grid-column: auto; }
   .compact-filter-row { flex-wrap: wrap; overflow: visible; }
 }
+
+/* FishCast v3 map markers */
+.fishcast-marker-wrapper { background: transparent !important; border: 0 !important; }
+.fishcast-map-marker {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #07130f;
+  border-radius: 50% 50% 50% 8px;
+  background: #75a9ff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.38), 0 0 0 2px rgba(255,255,255,.14);
+  transform: rotate(-45deg);
+}
+.fishcast-marker-fishing { background: #48e6a4; }
+.fishcast-marker-aquaculture { background: #f3c660; }
+.fishcast-marker-pond { background: #5ed9dc; }
+.fishcast-marker-reservoir { background: #5c9df2; }
+.fishcast-marker-water { background: #8cb8e8; }
+.fishcast-marker-limited { opacity: .76; }
+.fishcast-marker-verified { box-shadow: 0 4px 12px rgba(0,0,0,.38), 0 0 0 3px rgba(72,230,164,.24); }
