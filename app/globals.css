@@ -706,3 +706,46 @@ h1, h2, h3, p { margin-top: 0; }
 
 /* Puzzle 12+13 */
 .location-button:disabled{opacity:.65;cursor:wait}.place-enrichment{display:grid;gap:5px;margin:14px 0 18px}.place-enrichment strong{color:#e7fff4}.place-enrichment small{max-width:720px;color:var(--muted);line-height:1.5}.source-panel p:not(.section-kicker){margin:12px 0 20px;color:var(--muted);line-height:1.65}.source-actions{display:flex;flex-wrap:wrap;gap:10px}.source-actions a{padding:10px 13px;border:1px solid var(--border);border-radius:999px;background:rgba(88,230,169,.08);color:#c9f9e2;font-size:.75rem;font-weight:850}.source-actions a:hover{border-color:rgba(88,230,169,.35);color:var(--accent)}
+
+/* Puzzle 14–15 · filtre avansate și stabilitate */
+.advanced-filter-panel {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.5fr) repeat(2, minmax(170px, .75fr));
+  gap: 14px;
+  margin: 0 0 16px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(7, 29, 21, .62);
+}
+.filter-control-group,
+.filter-select-label { display: grid; align-content: start; gap: 9px; }
+.filter-control-group > span,
+.filter-select-label > span { color: #9bb8aa; font-size: .67rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+.compact-filter-row { gap: 7px; padding-bottom: 0; }
+.compact-filter-row .filter-chip { padding: 8px 11px; }
+.filter-select-label select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 37px 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  background: #0b2a1e;
+  color: var(--text);
+  font: inherit;
+  font-size: .75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.filter-select-label select:focus { border-color: rgba(88, 230, 169, .42); box-shadow: 0 0 0 3px rgba(88, 230, 169, .08); }
+
+@media (max-width: 900px) {
+  .advanced-filter-panel { grid-template-columns: 1fr 1fr; }
+  .filter-control-group { grid-column: 1 / -1; }
+}
+@media (max-width: 580px) {
+  .advanced-filter-panel { grid-template-columns: 1fr; padding: 13px; border-radius: 17px; }
+  .filter-control-group { grid-column: auto; }
+  .compact-filter-row { flex-wrap: wrap; overflow: visible; }
+}
