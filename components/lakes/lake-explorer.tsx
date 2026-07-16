@@ -16,7 +16,7 @@ type ConfidenceFilter = LakeConfidence | "all";
 const SETTINGS_KEY = "fishcast-explorer-settings-v1";
 const LIVE_CACHE_KEY = "fishcast-live-lakes-v1";
 const LIVE_CACHE_TTL = 6 * 60 * 60 * 1000;
-const RADII = [25, 50, 80, 120] as const;
+const RADII = [25, 50, 80, 100] as const;
 
 const keyFor = (lake: Lake) => `${lake.name.toLocaleLowerCase("ro")}|${lake.latitude.toFixed(4)}|${lake.longitude.toFixed(4)}`;
 
@@ -95,16 +95,16 @@ export function LakeExplorer() {
     setLocationStatus(`Căutăm locuri de pescuit și corpuri de apă în raza de ${forceRadius} km...`);
     try {
       const categories = category === "all"
-        ? "fishing,aquaculture,pond,reservoir,water"
+        ? "fishing,aquaculture,pond,reservoir"
         : category;
       const response = await fetch(`/api/nearby-lakes?lat=${coords.latitude}&lon=${coords.longitude}&radius=${forceRadius}&categories=${categories}`);
-      const data = await response.json() as { lakes?: Lake[]; error?: string; cached?: boolean; stale?: boolean };
+      const data = await response.json() as { lakes?: Lake[]; error?: string; cached?: boolean; stale?: boolean; partial?: boolean; diagnostics?: string[] };
       if (!response.ok) throw new Error(data.error || "Căutarea live nu a răspuns");
 
       const lakes = data.lakes || [];
       setLiveLakes(lakes);
       localStorage.setItem(LIVE_CACHE_KEY, JSON.stringify({ createdAt: Date.now(), position: coords, lakes, radius: forceRadius }));
-      const cacheNote = data.stale ? " · rezultate de rezervă" : data.cached ? " · din cache" : "";
+      const cacheNote = data.stale ? " · rezultate de rezervă" : data.cached ? " · din cache" : data.partial ? " · rezultate parțiale" : "";
       setLocationStatus(`Am descoperit ${lakes.length} locații publice în raza de ${forceRadius} km${cacheNote}`);
     } catch (error) {
       setLocationStatus(error instanceof Error ? error.message : "Căutarea live nu a putut fi efectuată");
