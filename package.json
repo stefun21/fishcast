@@ -2,14 +2,14 @@
   "name": "fishcast-romania-stage1",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
+    "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "sync:lakes": "node scripts/sync-lakes.mjs",
-    "validate:lakes": "node scripts/validate-lakes.mjs",
-    "check": "npm run validate:lakes && tsc --noEmit"
-  },
+    "validate:lakes": "node scripts/validate-lakes.mjs"
+  }
+}
   "dependencies": {
     "leaflet": "^1.9.4",
     "lucide-react": "^0.468.0",
