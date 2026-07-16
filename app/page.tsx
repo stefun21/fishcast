@@ -1,69 +1,55 @@
-const coreItems = [
-  "Next.js + TypeScript",
-  "GitHub + Vercel",
-  "Fără conturi externe",
-];
+import Link from "next/link";
+import { HomeHero } from "@/components/home/home-hero";
+import { QuickActions } from "@/components/home/quick-actions";
+import { LakeCard } from "@/components/lakes/lake-card";
+import { demoLakes } from "@/data/lakes";
 
 export default function HomePage() {
   return (
-    <main className="page-shell">
-      <div className="ambient ambient-one" aria-hidden="true" />
-      <div className="ambient ambient-two" aria-hidden="true" />
+    <main className="page-content home-page">
+      <HomeHero />
 
-      <header className="topbar">
-        <a className="brand" href="/" aria-label="FishCast România">
-          <span className="brand-mark">FC</span>
-          <span>
-            <strong>FishCast</strong>
-            <small>România</small>
-          </span>
-        </a>
+      <section className="content-section compact-section" aria-labelledby="quick-actions-title">
+        <div className="section-heading visually-hidden">
+          <h2 id="quick-actions-title">Acțiuni rapide</h2>
+        </div>
+        <QuickActions />
+      </section>
 
-        <span className="status-pill">
-          <span className="status-dot" /> Core activ
-        </span>
-      </header>
+      <section className="content-section" aria-labelledby="nearby-title">
+        <div className="section-heading">
+          <div>
+            <p className="section-kicker">DESCOPERĂ</p>
+            <h2 id="nearby-title">Locuri de pescuit</h2>
+            <p>
+              Explorează catalogul, activează locația și sortează automat rezultatele după distanță.
+            </p>
+          </div>
+          <Link className="text-link" href="/explore">
+            Vezi harta <span aria-hidden="true">→</span>
+          </Link>
+        </div>
 
-      <section className="hero">
-        <p className="eyebrow">FISHCAST V2 · PUZZLE 01</p>
-        <h1>Găsește locul potrivit. La momentul potrivit.</h1>
-        <p className="hero-copy">
-          Fundația noului FishCast este instalată. Următoarele pachete vor adăuga
-          navigația, harta, locațiile, vremea și Fishing Index.
-        </p>
-
-        <div className="actions">
-          <a className="primary-action" href="#core">
-            Verifică instalarea
-          </a>
-          <span className="secondary-note">Deploy minim și stabil</span>
+        <div className="lake-grid">
+          {demoLakes.slice(0, 6).map((lake) => (
+            <LakeCard key={lake.id} lake={lake} />
+          ))}
         </div>
       </section>
 
-      <section className="core-card" id="core">
+      <section className="content-section insight-banner" aria-labelledby="today-title">
+        <div className="insight-icon" aria-hidden="true">
+          <span>LIVE</span>
+        </div>
         <div>
-          <p className="card-label">CORE READY</p>
-          <h2>Primul modul este montat.</h2>
+          <p className="section-kicker">FISHING INDEX</p>
+          <h2 id="today-title">Condiții calculate pentru fiecare locație</h2>
           <p>
-            Când această pagină apare pe domeniul Vercel, putem continua cu
-            următorul ZIP fără să acumulăm erori ascunse.
+            Presiunea, vântul, rafalele, precipitațiile și temperatura sunt analizate pentru următoarele ore.
           </p>
         </div>
-
-        <ul>
-          {coreItems.map((item) => (
-            <li key={item}>
-              <span aria-hidden="true">✓</span>
-              {item}
-            </li>
-          ))}
-        </ul>
+        <Link className="insight-status" href="/explore">Explorează</Link>
       </section>
-
-      <footer>
-        <span>FishCast România</span>
-        <span>Sprint 1 · Core</span>
-      </footer>
     </main>
   );
 }
