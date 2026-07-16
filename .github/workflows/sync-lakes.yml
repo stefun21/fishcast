@@ -1,0 +1,31 @@
+name: Sincronizare automată bălți
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sync-lakes
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - name: Importă locațiile din OpenStreetMap
+        run: npm run sync:lakes
+      - name: Validează baza generată
+        run: npm run validate:lakes
+      - name: Salvează modificările
+        run: |
+          git config user.name "fishcast-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/lakes.generated.json
+          git diff --cached --quiet || git commit -m "chore(data): sincronizare automată bălți"
+          git push

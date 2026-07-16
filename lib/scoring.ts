@@ -1,12 +1,13 @@
-export function fishingScore(x:{pressure:number;wind:number;gust:number;rain:number;cloud:number;temp:number;hour:number}){
-  let score=62
-  if(x.pressure>=1008&&x.pressure<=1023) score+=10; else if(x.pressure<995||x.pressure>1033) score-=12
-  if(x.wind>=5&&x.wind<=18) score+=9; else if(x.wind>30) score-=18
-  if(x.gust>45) score-=18
-  if(x.rain>4) score-=14; else if(x.rain>0&&x.rain<=1.5) score+=4
-  if(x.cloud>=45&&x.cloud<=90) score+=6
-  if(x.temp>=8&&x.temp<=26) score+=5; else if(x.temp>34||x.temp<1) score-=12
-  if(x.hour<=8||x.hour>=18) score+=8
+export function fishingScore(input:{pressure:number;wind:number;gust:number;rain:number;cloud:number;temp:number;hour:number;pressureTrend?:number}){
+  let score=58
+  if(input.pressure>=1008&&input.pressure<=1023) score+=10; else score-=5
+  const trend=Math.abs(input.pressureTrend||0); if(trend<=1.5) score+=8; else if(trend>4) score-=12
+  if(input.wind>=4&&input.wind<=18) score+=9; else if(input.wind>28) score-=16
+  if(input.gust>45) score-=22
+  if(input.rain>4) score-=15; else if(input.rain>0&&input.rain<1.5) score+=3
+  if(input.cloud>=35&&input.cloud<=85) score+=6
+  if(input.temp>=8&&input.temp<=25) score+=7; else if(input.temp>32||input.temp<1) score-=12
+  if(input.hour<=8||input.hour>=18) score+=10
   score=Math.max(5,Math.min(98,Math.round(score)))
-  return {score,verdict:score>=80?'Excelent':score>=65?'Bun':score>=48?'Moderat':'Slab'}
+  return {score,verdict:score>=82?'Condiții foarte bune':score>=68?'Condiții bune':score>=50?'Condiții mixte':'Mai bine amână'}
 }
