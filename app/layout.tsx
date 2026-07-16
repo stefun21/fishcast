@@ -1,27 +1,21 @@
-import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import PwaRegister from "@/components/PwaRegister";
+
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "FishCast România",
-  description: "Locuri de pescuit, vreme și condiții analizate pentru pescari.",
-  manifest: "/manifest.webmanifest",
-  icons: { apple: "/icons/icon-192.png" }
+  description: "Descoperă cele mai bune locuri de pescuit din România.",
+  manifest: "/manifest.webmanifest"
 };
 
-export const viewport: Viewport = {
-  themeColor: "#0b3d2e",
-  width: "device-width",
-  initialScale: 1
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="ro">
-      <body>
-        <PwaRegister />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
