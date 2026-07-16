@@ -140,7 +140,7 @@ for await (let line of reader) {
   }
 
   const classification = classify(tags, name);
-  if (classification.score < 36) {
+  if (classification.score < 22) {
     stats.rejectedLowScore += 1;
     continue;
   }

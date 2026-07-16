@@ -10,12 +10,13 @@ permissions:
 
 concurrency:
   group: fishcast-data-sync
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 35
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,17 +26,20 @@ jobs:
         with:
           node-version: 22
 
-      - name: Instalează instrumentele GIS
-        run: sudo apt-get update && sudo apt-get install -y osmium-tool gdal-bin unzip
+      - name: Instalează osmium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y osmium-tool
 
       - name: Descarcă extractul OpenStreetMap România
         run: |
           mkdir -p tmp
-          curl --fail --location --retry 4 --retry-delay 10 \
+          curl --fail --location --retry 5 --retry-all-errors --connect-timeout 30 \
             --output tmp/romania.osm.pbf \
             https://download.geofabrik.de/europe/romania-latest.osm.pbf
+          test -s tmp/romania.osm.pbf
 
-      - name: Extrage corpurile de apă și locurile de pescuit
+      - name: Extrage locațiile relevante
         run: |
           osmium tags-filter tmp/romania.osm.pbf \
             nwr/leisure=fishing \
@@ -49,73 +53,26 @@ jobs:
             nwr/water=pond \
             nwr/water=reservoir \
             -o tmp/waters.osm.pbf --overwrite
+
           osmium export tmp/waters.osm.pbf \
-            --geometry-types=point,linestring,polygon \
-            -f geojsonseq -o tmp/waters.geojsonseq --overwrite
+            -f geojsonseq \
+            -o tmp/waters.geojsonseq --overwrite
 
-      - name: Generează catalogul OpenStreetMap
-        run: node scripts/build-lakes.mjs tmp/waters.geojsonseq tmp/osm-lakes.json tmp/osm-meta.json
+          test -s tmp/waters.geojsonseq
 
-      - name: Descarcă seturile oficiale Apele Române
-        shell: bash
+      - name: Generează catalogul
         run: |
-          set +e
-          mkdir -p tmp/natural tmp/reservoirs
-          printf '{"type":"FeatureCollection","features":[]}' > tmp/natural.geojson
-          printf '{"type":"FeatureCollection","features":[]}' > tmp/reservoirs.geojson
-
-          curl --fail --location --retry 3 --retry-delay 8 \
-            -o tmp/lacuri-naturale.zip \
-            'https://data.gov.ro/dataset/99886f1e-a89e-4d65-9a6c-2fd64a2d1713/resource/a3e316f7-2392-41e4-9b85-1bf679835a11/download/lacurinaturale.zip'
-          if [ -s tmp/lacuri-naturale.zip ]; then
-            unzip -oq tmp/lacuri-naturale.zip -d tmp/natural
-            NATURAL_SHP=$(find tmp/natural -iname '*.shp' | head -n 1)
-            [ -n "$NATURAL_SHP" ] && ogr2ogr -f GeoJSON -t_srs EPSG:4326 tmp/natural.geojson "$NATURAL_SHP"
-          fi
-
-          curl --fail --location --retry 3 --retry-delay 8 \
-            -o tmp/lacuri-acumulare.zip \
-            'https://data.gov.ro/dataset/99886f1e-a89e-4d65-9a6c-2fd64a2d1713/resource/9e0a1517-2889-41f1-95b4-485ee234768d/download/lacuriacumulare.zip'
-          if [ -s tmp/lacuri-acumulare.zip ]; then
-            unzip -oq tmp/lacuri-acumulare.zip -d tmp/reservoirs
-            RESERVOIR_SHP=$(find tmp/reservoirs -iname '*.shp' | head -n 1)
-            [ -n "$RESERVOIR_SHP" ] && ogr2ogr -f GeoJSON -t_srs EPSG:4326 tmp/reservoirs.geojson "$RESERVOIR_SHP"
-          fi
-          exit 0
-
-      - name: Descarcă lacurile documentate în Wikidata
-        shell: bash
-        run: |
-          printf '{"results":{"bindings":[]}}' > tmp/wikidata.json
-          cat > tmp/wikidata.sparql <<'SPARQL'
-          SELECT DISTINCT ?item ?itemLabel ?coord ?website WHERE {
-            ?item wdt:P17 wd:Q218;
-                  wdt:P625 ?coord;
-                  wdt:P31/wdt:P279* ?type.
-            VALUES ?type { wd:Q23397 wd:Q131681 wd:Q3253281 wd:Q11315 wd:Q15324 }
-            OPTIONAL { ?item wdt:P856 ?website. }
-            SERVICE wikibase:label { bd:serviceParam wikibase:language "ro,en". }
-          }
-          SPARQL
-          curl --fail --location --retry 3 --retry-delay 8 \
-            -A 'FishCast-Romania/2.0 (public open-data catalog)' \
-            -H 'Accept: application/sparql-results+json' \
-            --data-urlencode query@tmp/wikidata.sparql \
-            -o tmp/wikidata.json \
-            https://query.wikidata.org/sparql || true
-
-      - name: Unește și deduplică sursele publice
-        run: |
-          node scripts/merge-public-sources.mjs \
-            tmp/osm-lakes.json \
-            tmp/natural.geojson \
-            tmp/reservoirs.geojson \
-            tmp/wikidata.json \
+          node scripts/build-lakes.mjs \
+            tmp/waters.geojsonseq \
             data/lakes.generated.json \
             data/catalog-meta.json
 
       - name: Validează catalogul
         run: node scripts/validate-lakes.mjs data/lakes.generated.json data/catalog-meta.json
+
+      - name: Afișează statistici
+        run: |
+          node -e "const m=require('./data/catalog-meta.json'); console.log(JSON.stringify(m,null,2))"
 
       - name: Salvează modificările
         run: |
@@ -123,5 +80,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/lakes.generated.json data/catalog-meta.json
           git diff --cached --quiet && exit 0
-          git commit -m "chore(data): extindere catalog multi-sursă"
+          git commit -m "chore(data): actualizare catalog FishCast"
           git push
