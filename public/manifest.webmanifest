@@ -1,9 +1,0 @@
-{
-  "name":"FishCast România",
-  "short_name":"FishCast",
-  "start_url":"/",
-  "display":"standalone",
-  "background_color":"#07111d",
-  "theme_color":"#07111d",
-  "icons":[]
-}

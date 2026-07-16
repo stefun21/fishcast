@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FishCast România</title>
+  <desc id="desc">Monogramă FishCast pe fundal verde închis</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#123d2e"/>
+      <stop offset="1" stop-color="#06130f"/>
+    </linearGradient>
+    <linearGradient id="fg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7cf2bd"/>
+      <stop offset="1" stop-color="#31cc8b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
+  <path d="M114 318c60-118 179-169 286-118-41 21-68 52-80 91-48-28-97-19-146 27-22 20-43 32-60 35 4-11 4-23 0-35Z" fill="none" stroke="url(#fg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="332" cy="211" r="13" fill="#7cf2bd"/>
+  <path d="M101 158c60 8 104 40 131 96" fill="none" stroke="#7cf2bd" stroke-width="25" stroke-linecap="round"/>
+</svg>
