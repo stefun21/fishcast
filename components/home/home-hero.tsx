@@ -6,15 +6,14 @@ export function HomeHero() {
     <section className="home-hero">
       <div className="hero-content">
         <div className="hero-status">
-          <span className="status-dot" /> Platformă pentru pescarii din România
+          <span className="status-dot" /> Catalog național actualizat automat
         </div>
-        <h1>Unde merită să pescuiești astăzi?</h1>
+        <h1>Locul potrivit. Momentul potrivit.</h1>
         <p>
-          Descoperă locuri, compară distanțe și pregătește partida potrivită.
-          Vremea live și Fishing Index se montează în puzzle-urile următoare.
+          Descoperă ape din toată România, ordonează-le după distanță și verifică vremea live înainte să pornești la drum.
         </p>
 
-        <form className="hero-search" action="/explore">
+        <form className="hero-search" action="/lakes">
           <span aria-hidden="true"><Icon name="search" size={21} /></span>
           <input
             aria-label="Caută o baltă sau localitate"
@@ -28,12 +27,12 @@ export function HomeHero() {
         </form>
 
         <div className="hero-actions">
-          <Link className="primary-button" href="/explore">
+          <Link className="primary-button" href="/lakes">
+            <Icon name="list" size={18} /> Vezi toate locațiile
+          </Link>
+          <Link className="ghost-button" href="/explore">
             <Icon name="map" size={18} /> Explorează harta
           </Link>
-          <button className="ghost-button" type="button">
-            <Icon name="location" size={18} /> Folosește locația mea
-          </button>
         </div>
       </div>
 

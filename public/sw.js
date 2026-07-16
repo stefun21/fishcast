@@ -1,7 +1,8 @@
 const CACHE_VERSION = "fishcast-v2-puzzle-04";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
-const APP_SHELL = ["/", "/explore", "/favorites", "/icon.svg", "/icons/icon-192.png"];
+const APP_SHELL = ["/", "/explore",
+  "/lakes", "/favorites", "/icon.svg", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

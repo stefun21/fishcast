@@ -8,14 +8,14 @@ const actions: Array<{
   icon: IconName;
 }> = [
   {
-    title: "Lângă mine",
-    description: "Ordonare după distanță",
-    href: "/explore",
-    icon: "location",
+    title: "Vezi tot",
+    description: "Catalog ordonat după distanță",
+    href: "/lakes",
+    icon: "list",
   },
   {
-    title: "Explorează",
-    description: "Listă și hartă",
+    title: "Explorează harta",
+    description: "Descoperă vizual locațiile",
     href: "/explore",
     icon: "map",
   },

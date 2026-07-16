@@ -11,9 +11,9 @@ type IconProps = HTMLAttributes<HTMLSpanElement> & {
 const symbols: Record<string, string> = {
   heart: "♡",
   "heart-filled": "♥",
-  "map-pin": "📍",
+  "map-pin": "⌖",
   navigation: "➤",
-  fish: "🐟",
+  fish: "◒",
   search: "⌕",
   clock: "◷",
   phone: "☎",
@@ -22,9 +22,14 @@ const symbols: Record<string, string> = {
   route: "↗",
   location: "◉",
   check: "✓",
+  info: "i",
   wind: "≋",
   pressure: "↕",
   arrow: "→",
+  home: "⌂",
+  map: "◇",
+  list: "☷",
+  chevron: "›",
 };
 
 export function Icon({

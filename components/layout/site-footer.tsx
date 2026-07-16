@@ -6,15 +6,16 @@ export function SiteFooter() {
       <div className="site-footer-inner">
         <div>
           <strong>FishCast România</strong>
-          <p>Locuri de pescuit, vreme live și recomandări bazate pe condițiile reale.</p>
+          <p>Catalog național, hartă, vreme live și recomandări pentru următoarea partidă.</p>
         </div>
         <nav aria-label="Linkuri secundare">
-          <Link href="/explore">Explorează</Link>
+          <Link href="/lakes">Vezi toate locațiile</Link>
+          <Link href="/explore">Hartă</Link>
           <Link href="/favorites">Favorite</Link>
         </nav>
       </div>
       <p className="site-footer-note">
-        Verifică întotdeauna regulamentul și condițiile locale înainte de deplasare.
+        Verifică întotdeauna accesul, regulamentul și condițiile locale înainte de deplasare.
       </p>
     </footer>
   );

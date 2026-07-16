@@ -3,11 +3,7 @@ import { notFound } from "next/navigation";
 import { FavoriteButton } from "@/components/lakes/favorite-button";
 import { LiveWeather } from "@/components/weather/live-weather";
 import { Icon } from "@/components/ui/icon";
-import { demoLakes, getLakeById } from "@/data/lakes";
-
-export function generateStaticParams() {
-  return demoLakes.map((lake) => ({ id: lake.id }));
-}
+import { getLakeById } from "@/data/lakes";
 
 export default async function LakePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,7 +15,7 @@ export default async function LakePage({ params }: { params: Promise<{ id: strin
 
   return (
     <main className="page-content lake-detail-page">
-      <Link className="text-link detail-back" href="/explore">← Înapoi la explorare</Link>
+      <Link className="text-link detail-back" href="/lakes">← Înapoi la catalog</Link>
       <section className={`lake-detail-hero lake-tone-${lake.tone}`}>
         <div className="lake-card-pattern" aria-hidden="true" />
         <div className="lake-detail-copy">
@@ -28,7 +24,7 @@ export default async function LakePage({ params }: { params: Promise<{ id: strin
           <p>{lake.description}</p>
           <div className="lake-tags">{lake.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
         </div>
-        <div className="detail-score"><small>INDEX DEMO</small><strong>{lake.score}</strong></div>
+        <div className="detail-score"><small>FISHCAST INDEX</small><strong>{lake.score}</strong></div>
         <FavoriteButton id={lake.id} name={lake.name} />
       </section>
 
@@ -41,7 +37,7 @@ export default async function LakePage({ params }: { params: Promise<{ id: strin
           <div className="detail-metrics">
             <span><Icon name="location" size={19} /><small>Latitudine</small><strong>{lake.latitude.toFixed(4)}</strong></span>
             <span><Icon name="location" size={19} /><small>Longitudine</small><strong>{lake.longitude.toFixed(4)}</strong></span>
-            <span><Icon name="location" size={19} /><small>Distanță demo</small><strong>{lake.distanceKm} km</strong></span>
+            <span><Icon name="location" size={19} /><small>Distanță estimată</small><strong>{lake.distanceKm} km</strong></span>
           </div>
         </article>
 

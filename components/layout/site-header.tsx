@@ -17,14 +17,15 @@ export function SiteHeader() {
 
       <nav className="desktop-nav" aria-label="Navigație principală">
         <Link href="/">Acasă</Link>
-        <Link href="/explore">Explorează</Link>
+        <Link href="/lakes">Vezi tot</Link>
+        <Link href="/explore">Hartă</Link>
         <Link href="/favorites">Favorite</Link>
       </nav>
 
       <div className="header-actions">
         <InstallAppButton />
         <span className="build-pill">
-          <span className="status-dot" /> V2 în construcție
+          <span className="status-dot" /> Catalog live
         </span>
       </div>
     </header>

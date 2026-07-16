@@ -1,24 +1,16 @@
 {
-  "generatedAt": "2026-07-16T14:17:05.783Z",
-  "source": "OpenStreetMap via Geofabrik",
-  "total": 1922,
+  "generatedAt": "2026-07-16T00:00:00.000Z",
+  "source": "Catalog FishCast initial seed",
+  "total": 3,
   "confidence": {
-    "verified": 2,
-    "likely": 1001,
-    "limited": 919
+    "verified": 3,
+    "likely": 0,
+    "limited": 0
   },
   "categories": {
-    "aquaculture": 20,
-    "fishing": 96,
-    "pond": 166,
-    "reservoir": 144,
-    "water": 1496
+    "fishing": 3
   },
   "diagnostics": {
-    "parsed": 35834,
-    "rejectedUnnamed": 31847,
-    "rejectedLowScore": 291,
-    "rejectedInvalidGeometry": 0,
-    "duplicates": 1774
+    "seed": true
   }
 }

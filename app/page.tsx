@@ -25,8 +25,8 @@ export default function HomePage() {
               Explorează catalogul, activează locația și sortează automat rezultatele după distanță.
             </p>
           </div>
-          <Link className="text-link" href="/explore">
-            Vezi harta <span aria-hidden="true">→</span>
+          <Link className="text-link" href="/lakes">
+            Vezi toate <span aria-hidden="true">→</span>
           </Link>
         </div>
 
@@ -48,7 +48,7 @@ export default function HomePage() {
             Presiunea, vântul, rafalele, precipitațiile și temperatura sunt analizate pentru următoarele ore.
           </p>
         </div>
-        <Link className="insight-status" href="/explore">Explorează</Link>
+        <Link className="insight-status" href="/lakes">Vezi catalogul</Link>
       </section>
     </main>
   );
