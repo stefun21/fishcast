@@ -21,27 +21,44 @@ jobs:
   sync:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 35
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
+
+      - name: Pregateste cheia cache-ului lunar
+        id: cache-key
+        shell: bash
+        run: echo "month=$(date -u +'%Y-%m')" >> "$GITHUB_OUTPUT"
+
+      - name: Restaureaza ultima copie a surselor oficiale
+        id: public-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: cache/public-sources
+          key: fishcast-public-sources-${{ steps.cache-key.outputs.month }}
+          restore-keys: |
+            fishcast-public-sources-
 
       - name: Instaleaza uneltele GIS
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends osmium-tool gdal-bin unzip poppler-utils jq
-          mkdir -p tmp
+          mkdir -p tmp cache/public-sources
 
       - name: Descarca OpenStreetMap Romania
+        shell: bash
         run: |
-          curl --fail --location --retry 6 --retry-all-errors --connect-timeout 30 --max-time 600 \
-            -A "FishCast-Romania/3.0" \
+          curl -4 --http1.1 --fail --location --silent --show-error \
+            --retry 4 --retry-delay 4 --retry-connrefused \
+            --connect-timeout 20 --max-time 600 \
+            -A "FishCast-Romania/3.1" \
             -o tmp/romania.osm.pbf \
             https://download.geofabrik.de/europe/romania-latest.osm.pbf
           test -s tmp/romania.osm.pbf
@@ -67,25 +84,16 @@ jobs:
             -o tmp/waters.geojsonseq --overwrite
           test -s tmp/waters.geojsonseq
 
-      - name: Descarca seturile oficiale Apele Romane
+      - name: Descarca sursele oficiale cu fallback si cache
         shell: bash
-        run: |
-          set +e
-          download_zip() {
-            local url="$1"
-            local output="$2"
-            curl --fail --location --retry 5 --retry-all-errors --connect-timeout 25 --max-time 240 \
-              -A "FishCast-Romania/3.0" -o "$output" "$url"
-            if [ $? -ne 0 ]; then
-              echo "Sursa optionala indisponibila: $url"
-              rm -f "$output"
-            fi
-          }
+        run: bash scripts/download-official-sources.sh cache/public-sources tmp
 
-          download_zip "https://data.gov.ro/dataset/99886f1e-a89e-4d65-9a6c-2fd64a2d1713/resource/a3e316f7-2392-41e4-9b85-1bf679835a11/download/lacurinaturale.zip" "tmp/natural.zip"
-          download_zip "https://data.gov.ro/dataset/99886f1e-a89e-4d65-9a6c-2fd64a2d1713/resource/9e0a1517-2889-41f1-95b4-485ee234768d/download/lacuriacumulare.zip" "tmp/reservoirs.zip"
-          download_zip "https://data.gov.ro/dataset/f10e9283-3cae-4d0f-9549-d9ccb7a4269b/resource/4b2bc115-8776-45af-9ea0-c846e2a23a88/download/corpuriapasuprafata.zip" "tmp/surface.zip"
-          exit 0
+      - name: Salveaza cache-ul lunar al surselor oficiale
+        if: steps.public-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: cache/public-sources
+          key: fishcast-public-sources-${{ steps.cache-key.outputs.month }}
 
       - name: Converteste seturile oficiale in GeoJSON
         shell: bash
@@ -126,13 +134,24 @@ jobs:
           LIMIT 2500
           QUERY
 
-          curl --fail --location --retry 4 --retry-all-errors --connect-timeout 25 --max-time 180 \
-            -A "FishCast-Romania/3.0 (GitHub Actions; public catalog)" \
-            -H "Accept: application/sparql-results+json" \
-            --get --data-urlencode query@tmp/wikidata.rq \
-            -o tmp/wikidata.json \
-            https://query.wikidata.org/sparql \
-            || echo '{"results":{"bindings":[]}}' > tmp/wikidata.json
+          echo '{"results":{"bindings":[]}}' > tmp/wikidata.json
+          for endpoint in \
+            "https://query.wikidata.org/sparql" \
+            "https://query.wikidata.org/bigdata/namespace/wdq/sparql"; do
+            if curl -4 --http1.1 --fail --location --silent --show-error \
+              --retry 2 --retry-delay 3 --retry-connrefused \
+              --connect-timeout 15 --max-time 90 \
+              -A "FishCast-Romania/3.1 (GitHub Actions; public catalog)" \
+              -H "Accept: application/sparql-results+json" \
+              --get --data-urlencode query@tmp/wikidata.rq \
+              -o tmp/wikidata.part.json "$endpoint"; then
+              if jq -e '.results.bindings | arrays' tmp/wikidata.part.json >/dev/null 2>&1; then
+                mv tmp/wikidata.part.json tmp/wikidata.json
+                break
+              fi
+            fi
+          done
+          rm -f tmp/wikidata.part.json
 
       - name: Identifica habitatele piscicole ANPA
         run: node scripts/fetch-anpa.mjs tmp/anpa-text.txt tmp/anpa
