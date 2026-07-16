@@ -44,8 +44,14 @@ jobs:
             nwr/sport=fishing \
             nwr/fishing \
             nwr/landuse=aquaculture \
+            nwr/aquaculture \
+            nwr/fish \
             -o tmp/fishing.osm.pbf --overwrite
           osmium export tmp/fishing.osm.pbf -f geojsonseq -o tmp/fishing.geojsonseq --overwrite
+          echo "Obiecte extrase:"
+          osmium fileinfo -e tmp/fishing.osm.pbf | grep -E "Number of (nodes|ways|relations)" || true
+          echo "Linii GeoJSON:"
+          wc -l tmp/fishing.geojsonseq
 
       - name: Genereaza baza JSON
         run: node scripts/build-lakes.mjs tmp/fishing.geojsonseq
