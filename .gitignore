@@ -1,10 +1,5 @@
 node_modules
 .next
-out
 .env*
-!.env.example
+tmp
 .DS_Store
-*.log
-# FishCast sync temporary files
-data/.sync-state.json
-data/.lakes.partial.json

@@ -1,3 +1,0 @@
-# FishCast sync temporary files
-data/.sync-state.json
-data/.lakes.partial.json

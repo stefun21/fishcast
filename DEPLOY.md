@@ -1,53 +1,23 @@
-# Deploy FishCast România – Etapa 1
+# Deploy fără calculator
 
-## 1. Înlocuiește proiectul din GitHub
+## GitHub
 
-1. Dezarhivează pachetul.
-2. Urcă **toate fișierele și directoarele din interior** direct în rădăcina repository-ului.
-3. Verifică în GitHub că există exact fișierul:
+1. Creează sau golește repository-ul.
+2. Folosește `Add file → Upload files` și urcă toate fișierele proiectului.
+3. Verifică existența `.github/workflows/sync-lakes.yml`.
+4. Deschide `Settings → Actions → General`.
+5. Selectează `Allow all actions and reusable workflows`.
+6. La `Workflow permissions`, selectează `Read and write permissions` și salvează.
+7. Deschide tabul `Actions`.
+8. Alege `Actualizare automata locatii` și apasă `Run workflow`.
 
-```text
-.github/workflows/sync-lakes.yml
-```
+Workflow-ul nu folosește Overpass. Descarcă extractul național Geofabrik și îl procesează în runnerul GitHub, ceea ce evită blocajele întâlnite anterior.
 
-Dacă `.github` lipsește, workflow-ul nu va apărea în tabul Actions. Folderul începe cu punct și poate fi ascuns de unele programe de fișiere.
+## Vercel
 
-## 2. Activează GitHub Actions
-
-În repository:
-
-1. `Settings → Actions → General`
-2. La **Actions permissions**, permite rularea acțiunilor.
-3. La **Workflow permissions**, selectează **Read and write permissions**.
-4. Salvează.
-
-Apoi:
-
-1. Deschide tabul **Actions**.
-2. În stânga trebuie să apară **Sincronizare automată bălți**.
-3. Deschide workflow-ul.
-4. Apasă **Run workflow → Run workflow**.
-
-Workflow-ul rulează și automat zilnic la 03:23 UTC.
-
-## 3. Vercel
-
-- Framework Preset: `Next.js`
-- Node.js: `22.x`
-- Root Directory: gol sau `./`
-- Install Command: implicit
+- Framework Preset: Next.js
+- Node.js: 22.x
+- Root Directory: gol
 - Build Command: implicit
 - Output Directory: implicit
 - Environment Variables: niciuna
-
-Vercel va face automat un deployment după fiecare commit realizat de workflow.
-
-## 4. Verificare rapidă
-
-După prima rulare Actions, deschide în GitHub:
-
-```text
-data/lakes.generated.json
-```
-
-Fișierul trebuie să conțină locațiile importate. Dacă serviciile publice Overpass sunt temporar indisponibile, workflow-ul va eșua fără să suprascrie baza existentă; îl poți rula din nou mai târziu.

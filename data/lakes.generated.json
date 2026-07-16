@@ -1,1 +1,4 @@
-[]
+[
+  {"id":"seed-varlaam","name":"Lacul Varlaam","lat":44.315,"lon":26.074,"locality":"Adunații-Copăceni","county":"Giurgiu","website":"https://laculvarlaam.ro","phone":null,"openingHours":null,"fishingModes":["catch-release"],"sourceUrl":"https://www.openstreetmap.org/","confidence":"medium"},
+  {"id":"seed-moara-vlasiei","name":"Moara Vlăsiei 2","lat":44.646,"lon":26.205,"locality":"Moara Vlăsiei","county":"Ilfov","website":null,"phone":null,"openingHours":null,"fishingModes":["retention","catch-release"],"sourceUrl":"https://www.openstreetmap.org/","confidence":"medium"}
+]

@@ -1,53 +1,63 @@
-name: Sincronizare balti
+name: Actualizare automata locatii
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 4 * * *"
+    - cron: "17 4 * * 2,5"
 
 permissions:
   contents: write
 
 concurrency:
-  group: fishcast-sync-lakes
+  group: fishcast-data-sync
   cancel-in-progress: true
 
 jobs:
   sync:
-    name: Import OpenStreetMap
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
+    timeout-minutes: 25
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: 22
 
-      - name: Afiseaza versiunea Node
-        run: node --version
-
-      - name: Importa baltile din OpenStreetMap
-        run: node scripts/sync-lakes.mjs
-
-      - name: Valideaza fisierul generat
-        run: node scripts/validate-lakes.mjs
-
-      - name: Commit si push daca exista modificari
-        shell: bash
+      - name: Instaleaza osmium
         run: |
-          if git diff --quiet -- data/lakes.generated.json; then
-            echo "Nu exista modificari de salvat."
-            exit 0
-          fi
+          sudo apt-get update
+          sudo apt-get install -y osmium-tool
 
-          git config user.name "github-actions[bot]"
+      - name: Descarca extractul zilnic Romania
+        run: |
+          mkdir -p tmp
+          curl --fail --location --retry 4 --retry-delay 10 --connect-timeout 30 --max-time 900 \
+            https://download.geofabrik.de/europe/romania-latest.osm.pbf \
+            --output tmp/romania.osm.pbf
+
+      - name: Extrage locatiile de pescuit
+        run: |
+          osmium tags-filter tmp/romania.osm.pbf \
+            nwr/leisure=fishing \
+            nwr/sport=fishing \
+            nwr/fishing \
+            nwr/landuse=aquaculture \
+            -o tmp/fishing.osm.pbf --overwrite
+          osmium export tmp/fishing.osm.pbf -f geojsonseq -o tmp/fishing.geojsonseq --overwrite
+
+      - name: Genereaza baza JSON
+        run: node scripts/build-lakes.mjs tmp/fishing.geojsonseq
+
+      - name: Commit date actualizate
+        run: |
+          git config user.name "fishcast-data-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/lakes.generated.json
-          git commit -m "chore(data): actualizare automata balti"
-          git push
+          if git diff --cached --quiet; then
+            echo "Nu exista modificari."
+          else
+            git commit -m "chore(data): actualizare locatii pescuit"
+            git push
+          fi

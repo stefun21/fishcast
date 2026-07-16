@@ -1,67 +1,32 @@
 # 🎣 FishCast România
 
-**Descoperă unde merită să pescuiești astăzi.** FishCast România este o aplicație PWA modernă pentru pescari, cu locații sincronizate automat, hartă interactivă, geolocație, vreme detaliată și un Fishing Score explicabil.
+FishCast România este o aplicație PWA pentru descoperirea locurilor de pescuit din România. Locațiile sunt actualizate automat din extractul zilnic OpenStreetMap furnizat de Geofabrik, fără Supabase, fără chei API și fără rularea unor comenzi pe calculatorul utilizatorului.
 
-## Ce oferă Etapa 1
+## Ce funcționează în Etapa 1
 
-- import automat al locurilor de pescuit din OpenStreetMap prin Overpass;
-- sincronizare zilnică și rulare manuală prin GitHub Actions;
-- hartă interactivă OpenStreetMap;
-- sortarea locațiilor după distanța față de utilizator;
-- căutare după baltă, localitate, județ sau specie;
-- filtre „Cu reținere” și „Fără reținere” numai când informația există;
-- pagină detaliată pentru fiecare locație;
-- navigație către Waze și Google Maps;
-- favorite salvate local, fără cont;
-- vreme live prin Open-Meteo;
-- temperatură, presiune și tendința presiunii;
-- vânt, rafale, ploaie, umiditate și vizibilitate;
-- Fishing Score pentru următoarele ore, cu explicații și avertizări;
-- estimarea temperaturii apei, marcată explicit ca estimare;
-- instalare PWA pe telefon și desktop;
-- zero chei API și zero bază de date externă.
+- import automat al locațiilor de pescuit;
+- actualizare programată prin GitHub Actions;
+- căutare după nume, localitate sau județ;
+- geolocație și sortare după distanță;
+- favorite salvate în browser;
+- navigație Google Maps și Waze;
+- etichete cu/fără reținere doar când sursa conține informația;
+- PWA instalabilă;
+- zero conturi externe și zero variabile de mediu.
 
-## Cum funcționează datele
+## Surse
 
-GitHub Actions rulează `scripts/sync-lakes.mjs`, interoghează mai multe instanțe publice Overpass, normalizează rezultatele, elimină duplicatele și actualizează `data/lakes.generated.json`. Orice commit nou declanșează automat un deployment Vercel.
-
-FishCast nu inventează informații. Programul, telefonul, site-ul și regimul de pescuit sunt afișate numai când există în sursa publică. Locațiile cu date insuficiente sunt marcate corespunzător.
-
-## Tehnologii
-
-Next.js 15 · React 19 · TypeScript · Leaflet · OpenStreetMap · Overpass API · Open-Meteo · GitHub Actions · Vercel · PWA
-
-## Pornire locală
-
-```bash
-npm ci
-npm run dev
-```
-
-Aplicația va fi disponibilă la `http://localhost:3000`.
-
-## Verificări
-
-```bash
-npm run check
-npm run build
-```
-
-## Sincronizare manuală locală
-
-```bash
-npm run sync:lakes
-npm run validate:lakes
-```
-
-Sincronizarea necesită acces la internet și depinde de disponibilitatea instanțelor publice Overpass.
+- OpenStreetMap / Geofabrik pentru locații;
+- Open-Meteo va fi adăugat în Etapa 2 pentru vreme și Fishing Score;
+- AviationWeather.gov va fi folosit opțional pentru observații METAR apropiate.
 
 ## Deploy
 
-Instrucțiunile complete sunt în [DEPLOY.md](./DEPLOY.md).
+1. Urcă toate fișierele în rădăcina repository-ului GitHub.
+2. În GitHub: Settings → Actions → General → Workflow permissions → Read and write permissions.
+3. În tabul Actions rulează `Actualizare automata locatii`.
+4. Importă repository-ul în Vercel. Nu sunt necesare variabile de mediu.
 
-## Licențe și atribuire
+## Licență date
 
-Datele despre locații provin din OpenStreetMap și sunt supuse licenței ODbL. Harta folosește tile-uri OpenStreetMap cu atribuirea vizibilă. Datele meteo sunt furnizate de Open-Meteo.
-
-> Regulamentele, programul și tarifele se pot schimba. Verifică sursa oficială înainte de deplasare.
+Datele OpenStreetMap sunt utilizate sub licența ODbL. Atribuirea trebuie păstrată în aplicație.

@@ -1,3 +1,0 @@
-'use client'
-import { Heart } from 'lucide-react';import { useEffect,useState } from 'react'
-export default function FavoriteButton({id,compact=false}:{id:string,compact?:boolean}){const[k,setK]=useState(false);useEffect(()=>{setK(JSON.parse(localStorage.getItem('fishcast-favorites')||'[]').includes(id))},[id]);function toggle(){const a:string[]=JSON.parse(localStorage.getItem('fishcast-favorites')||'[]');const n=k?a.filter(x=>x!==id):[...new Set([...a,id])];localStorage.setItem('fishcast-favorites',JSON.stringify(n));setK(!k);window.dispatchEvent(new Event('favorites-changed'))}return <button className={`fav ${k?'active':''}`} onClick={toggle} aria-label="Favorite"><Heart size={18} fill={k?'currentColor':'none'}/>{!compact&&(k?'Salvată':'Salvează')}</button>}
