@@ -1,12 +1,24 @@
 {
-  "generatedAt": null,
+  "generatedAt": "2026-07-16T14:12:49.644Z",
   "source": "OpenStreetMap via Geofabrik",
-  "total": 0,
+  "total": 1922,
   "confidence": {
-    "verified": 0,
-    "likely": 0,
-    "limited": 0
+    "verified": 2,
+    "likely": 1001,
+    "limited": 919
   },
-  "categories": {},
-  "diagnostics": {}
+  "categories": {
+    "aquaculture": 20,
+    "fishing": 96,
+    "pond": 166,
+    "reservoir": 144,
+    "water": 1496
+  },
+  "diagnostics": {
+    "parsed": 35834,
+    "rejectedUnnamed": 31847,
+    "rejectedLowScore": 291,
+    "rejectedInvalidGeometry": 0,
+    "duplicates": 1774
+  }
 }
