@@ -1,0 +1,1 @@
+FishCast România — PWA pentru pescari cu locații sincronizate automat, hartă, geolocație, vreme detaliată, Fishing Score, favorite și navigație.

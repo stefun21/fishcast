@@ -1,42 +1,53 @@
-# Deploy FishCast pe GitHub și Vercel
+# Deploy FishCast România – Etapa 1
 
-## 1. GitHub
+## 1. Înlocuiește proiectul din GitHub
 
-Încarcă **fișierele din interiorul acestui folder** direct în rădăcina repository-ului. `package.json`, `app/`, `components/`, `data/` și `.github/` trebuie să fie la primul nivel.
+1. Dezarhivează pachetul.
+2. Urcă **toate fișierele și directoarele din interior** direct în rădăcina repository-ului.
+3. Verifică în GitHub că există exact fișierul:
 
-În repository deschide:
+```text
+.github/workflows/sync-lakes.yml
+```
 
-`Settings → Actions → General → Workflow permissions`
+Dacă `.github` lipsește, workflow-ul nu va apărea în tabul Actions. Folderul începe cu punct și poate fi ascuns de unele programe de fișiere.
 
-Selectează **Read and write permissions** și salvează.
+## 2. Activează GitHub Actions
 
-Apoi deschide:
+În repository:
 
-`Actions → Sincronizare automată bălți → Run workflow`
+1. `Settings → Actions → General`
+2. La **Actions permissions**, permite rularea acțiunilor.
+3. La **Workflow permissions**, selectează **Read and write permissions**.
+4. Salvează.
 
-Prima sincronizare poate dura câteva minute. La final trebuie să apară un commit automat care actualizează `data/lakes.generated.json`.
+Apoi:
 
-## 2. Vercel
+1. Deschide tabul **Actions**.
+2. În stânga trebuie să apară **Sincronizare automată bălți**.
+3. Deschide workflow-ul.
+4. Apasă **Run workflow → Run workflow**.
 
-Importă repository-ul în Vercel.
+Workflow-ul rulează și automat zilnic la 03:23 UTC.
 
-- Framework Preset: **Next.js**
-- Root Directory: gol / `./`
-- Install Command: gol
-- Build Command: gol
-- Output Directory: gol
-- Node.js: **22.x**
-- Environment Variables: **niciuna**
+## 3. Vercel
 
-După primul deploy, Vercel va publica automat commit-urile noi din branch-ul conectat.
+- Framework Preset: `Next.js`
+- Node.js: `22.x`
+- Root Directory: gol sau `./`
+- Install Command: implicit
+- Build Command: implicit
+- Output Directory: implicit
+- Environment Variables: niciuna
 
-## 3. Verificări
+Vercel va face automat un deployment după fiecare commit realizat de workflow.
 
-- Permite geolocația și apasă **În apropiere**.
-- Deschide o baltă și verifică prognoza.
-- Testează filtrele cu/fără reținere.
-- Instalează PWA din butonul din meniu sau din meniul browserului.
+## 4. Verificare rapidă
 
-## Dacă sincronizarea eșuează
+După prima rulare Actions, deschide în GitHub:
 
-Instanțele publice Overpass pot fi temporar ocupate. Workflow-ul încearcă trei servere și păstrează baza existentă dacă importul pare incomplet. Rulează din nou workflow-ul după câteva minute.
+```text
+data/lakes.generated.json
+```
+
+Fișierul trebuie să conțină locațiile importate. Dacă serviciile publice Overpass sunt temporar indisponibile, workflow-ul va eșua fără să suprascrie baza existentă; îl poți rula din nou mai târziu.
