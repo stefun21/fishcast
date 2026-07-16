@@ -1,16 +1,32 @@
 {
-  "generatedAt": "2026-07-16T00:00:00.000Z",
-  "source": "Catalog FishCast initial seed",
-  "total": 3,
+  "generatedAt": "2026-07-16T15:17:37.678Z",
+  "source": "Catalog automat multi-sursă fără chei API",
+  "total": 2044,
   "confidence": {
     "verified": 3,
-    "likely": 0,
-    "limited": 0
+    "likely": 1258,
+    "limited": 783
   },
   "categories": {
-    "fishing": 3
+    "fishing": 128,
+    "aquaculture": 57,
+    "pond": 158,
+    "reservoir": 136,
+    "water": 1565
   },
   "diagnostics": {
-    "seed": true
+    "inputs": {
+      "osm": 4147,
+      "natural": 0,
+      "reservoirs": 0,
+      "surface": 0,
+      "wikidata": 0
+    },
+    "candidates": 4147,
+    "duplicatesMerged": 2103,
+    "retained": 2044,
+    "sources": {
+      "OpenStreetMap / Geofabrik": 2044
+    }
   }
 }
