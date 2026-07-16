@@ -21,7 +21,7 @@ jobs:
   sync:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -32,92 +32,41 @@ jobs:
         with:
           node-version: 24
 
-      - name: Pregateste cheia cache-ului lunar
-        id: cache-key
-        shell: bash
-        run: echo "month=$(date -u +'%Y-%m')" >> "$GITHUB_OUTPUT"
-
-      - name: Restaureaza ultima copie a surselor oficiale
-        id: public-cache
-        uses: actions/cache/restore@v5
-        with:
-          path: cache/public-sources
-          key: fishcast-public-sources-${{ steps.cache-key.outputs.month }}
-          restore-keys: |
-            fishcast-public-sources-
-
-      - name: Instaleaza uneltele GIS
+      - name: Instaleaza uneltele necesare
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends osmium-tool gdal-bin unzip poppler-utils jq
-          mkdir -p tmp cache/public-sources
+          sudo apt-get install -y --no-install-recommends osmium-tool poppler-utils jq
+          mkdir -p tmp
 
       - name: Descarca OpenStreetMap Romania
         shell: bash
         run: |
-          curl -4 --http1.1 --fail --location --silent --show-error \
-            --retry 4 --retry-delay 4 --retry-connrefused \
-            --connect-timeout 20 --max-time 600 \
-            -A "FishCast-Romania/3.1" \
-            -o tmp/romania.osm.pbf \
-            https://download.geofabrik.de/europe/romania-latest.osm.pbf
+          curl -4 --http1.1 --fail --location --silent --show-error             --retry 4 --retry-delay 4 --retry-connrefused             --connect-timeout 20 --max-time 900             -A "FishCast-Romania/3.2"             -o tmp/romania.osm.pbf             https://download.geofabrik.de/europe/romania-latest.osm.pbf
           test -s tmp/romania.osm.pbf
 
       - name: Extrage locurile de pescuit si corpurile de apa
         run: |
-          osmium tags-filter tmp/romania.osm.pbf \
-            nwr/leisure=fishing \
-            nwr/amenity=fishing \
-            nwr/sport=fishing \
-            nwr/fishing=yes \
-            nwr/landuse=aquaculture \
-            nwr/aquaculture \
-            nwr/natural=water \
-            nwr/water=lake \
-            nwr/water=pond \
-            nwr/water=reservoir \
-            nwr/landuse=reservoir \
-            -o tmp/waters.osm.pbf --overwrite
+          osmium tags-filter tmp/romania.osm.pbf             nwr/leisure=fishing             nwr/amenity=fishing             nwr/sport=fishing             nwr/fishing=yes             nwr/landuse=aquaculture             nwr/aquaculture             nwr/natural=water             nwr/water=lake             nwr/water=pond             nwr/water=reservoir             nwr/water=lagoon             nwr/water=oxbow             nwr/water=basin             nwr/landuse=reservoir             nwr/landuse=basin             -o tmp/waters.osm.pbf --overwrite
 
-          osmium export tmp/waters.osm.pbf \
-            -f geojsonseq \
-            -o tmp/waters.geojsonseq --overwrite
+          osmium export tmp/waters.osm.pbf             -f geojsonseq             -o tmp/waters.geojsonseq --overwrite
+
           test -s tmp/waters.geojsonseq
+          echo "Obiecte OSM extrase:"
+          osmium fileinfo -e tmp/waters.osm.pbf | sed -n '1,80p'
 
-      - name: Descarca sursele oficiale cu fallback si cache
-        shell: bash
-        run: bash scripts/download-official-sources.sh cache/public-sources tmp
-
-      - name: Salveaza cache-ul lunar al surselor oficiale
-        if: steps.public-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: cache/public-sources
-          key: fishcast-public-sources-${{ steps.cache-key.outputs.month }}
-
-      - name: Converteste seturile oficiale in GeoJSON
+      - name: Pregateste sursele oficiale optionale
         shell: bash
         run: |
-          set +e
-          convert_zip() {
-            local archive="$1"
-            local folder="$2"
-            local output="$3"
-            echo '{"type":"FeatureCollection","features":[]}' > "$output"
-            [ -s "$archive" ] || return 0
-            mkdir -p "$folder"
-            unzip -q -o "$archive" -d "$folder" || return 0
-            local shp
-            shp=$(find "$folder" -type f -iname '*.shp' | head -n 1)
-            [ -n "$shp" ] || return 0
-            SHAPE_ENCODING=CP1250 ogr2ogr -skipfailures -t_srs EPSG:4326 -f GeoJSON "$output.tmp" "$shp"
-            [ -s "$output.tmp" ] && mv "$output.tmp" "$output"
-          }
-
-          convert_zip tmp/natural.zip tmp/natural tmp/natural.geojson
-          convert_zip tmp/reservoirs.zip tmp/reservoirs tmp/reservoirs.geojson
-          convert_zip tmp/surface.zip tmp/surface tmp/surface.geojson
-          exit 0
+          # data.gov.ro respinge sau temporizeaza frecvent conexiunile din runner-ele
+          # GitHub. Nu mai blocam catalogul pe acel host. Builderul primeste colectii
+          # goale si continua cu OSM, Wikidata si ANPA.
+          printf '%s
+' '{"type":"FeatureCollection","features":[]}' > tmp/natural.geojson
+          printf '%s
+' '{"type":"FeatureCollection","features":[]}' > tmp/reservoirs.geojson
+          printf '%s
+' '{"type":"FeatureCollection","features":[]}' > tmp/surface.geojson
+          echo "Sursele data.gov.ro sunt dezactivate in workflow pentru stabilitate."
 
       - name: Descarca lacurile documentate in Wikidata
         shell: bash
@@ -126,48 +75,40 @@ jobs:
           SELECT DISTINCT ?item ?itemLabel ?coord ?website WHERE {
             ?item wdt:P17 wd:Q218;
                   wdt:P625 ?coord.
-            VALUES ?waterClass { wd:Q23397 wd:Q131681 wd:Q3253281 wd:Q15324 }
+            VALUES ?waterClass {
+              wd:Q23397
+              wd:Q131681
+              wd:Q3253281
+              wd:Q15324
+              wd:Q166620
+            }
             ?item wdt:P31/wdt:P279* ?waterClass.
             OPTIONAL { ?item wdt:P856 ?website. }
             SERVICE wikibase:label { bd:serviceParam wikibase:language "ro,en". }
           }
-          LIMIT 2500
+          LIMIT 3500
           QUERY
 
           echo '{"results":{"bindings":[]}}' > tmp/wikidata.json
-          for endpoint in \
-            "https://query.wikidata.org/sparql" \
-            "https://query.wikidata.org/bigdata/namespace/wdq/sparql"; do
-            if curl -4 --http1.1 --fail --location --silent --show-error \
-              --retry 2 --retry-delay 3 --retry-connrefused \
-              --connect-timeout 15 --max-time 90 \
-              -A "FishCast-Romania/3.1 (GitHub Actions; public catalog)" \
-              -H "Accept: application/sparql-results+json" \
-              --get --data-urlencode query@tmp/wikidata.rq \
-              -o tmp/wikidata.part.json "$endpoint"; then
+
+          for endpoint in             "https://query.wikidata.org/sparql"             "https://query.wikidata.org/bigdata/namespace/wdq/sparql"; do
+            if curl -4 --http1.1 --fail --location --silent --show-error               --retry 2 --retry-delay 3 --retry-connrefused               --connect-timeout 15 --max-time 120               -A "FishCast-Romania/3.2 (GitHub Actions; public catalog)"               -H "Accept: application/sparql-results+json"               --get --data-urlencode query@tmp/wikidata.rq               -o tmp/wikidata.part.json "$endpoint"; then
               if jq -e '.results.bindings | arrays' tmp/wikidata.part.json >/dev/null 2>&1; then
                 mv tmp/wikidata.part.json tmp/wikidata.json
                 break
               fi
             fi
           done
+
           rm -f tmp/wikidata.part.json
+          jq '.results.bindings | length' tmp/wikidata.json
 
       - name: Identifica habitatele piscicole ANPA
         run: node scripts/fetch-anpa.mjs tmp/anpa-text.txt tmp/anpa
 
       - name: Genereaza catalogul multi-sursa
         run: |
-          node scripts/build-catalog-v3.mjs \
-            --osm tmp/waters.geojsonseq \
-            --natural tmp/natural.geojson \
-            --reservoirs tmp/reservoirs.geojson \
-            --surface tmp/surface.geojson \
-            --wikidata tmp/wikidata.json \
-            --anpa tmp/anpa-text.txt \
-            --output data/lakes.generated.json \
-            --meta data/catalog-meta.json \
-            --max 8000
+          node scripts/build-catalog-v3.mjs             --osm tmp/waters.geojsonseq             --natural tmp/natural.geojson             --reservoirs tmp/reservoirs.geojson             --surface tmp/surface.geojson             --wikidata tmp/wikidata.json             --anpa tmp/anpa-text.txt             --output data/lakes.generated.json             --meta data/catalog-meta.json             --max 12000             --min 10
 
       - name: Valideaza catalogul
         run: node scripts/validate-lakes.mjs data/lakes.generated.json data/catalog-meta.json
@@ -180,9 +121,11 @@ jobs:
           git config user.name "fishcast-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/lakes.generated.json data/catalog-meta.json
+
           if git diff --cached --quiet; then
             echo "Catalogul nu s-a schimbat."
             exit 0
           fi
-          git commit -m "chore(data): catalog FishCast multi-sursa"
+
+          git commit -m "chore(data): actualizare catalog FishCast"
           git push
