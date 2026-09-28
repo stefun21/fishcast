@@ -1,32 +1,32 @@
 {
-  "generatedAt": "2026-09-21T10:00:54.267Z",
+  "generatedAt": "2026-09-28T11:00:23.119Z",
   "source": "Catalog automat multi-sursă fără chei API",
-  "total": 2059,
+  "total": 2063,
   "confidence": {
     "verified": 3,
-    "likely": 1266,
+    "likely": 1270,
     "limited": 790
   },
   "categories": {
     "fishing": 130,
-    "aquaculture": 57,
+    "aquaculture": 58,
     "pond": 161,
-    "reservoir": 138,
+    "reservoir": 141,
     "water": 1573
   },
   "diagnostics": {
     "inputs": {
-      "osm": 4182,
+      "osm": 4192,
       "natural": 0,
       "reservoirs": 0,
       "surface": 0,
       "wikidata": 0
     },
-    "candidates": 4182,
-    "duplicatesMerged": 2123,
-    "retained": 2059,
+    "candidates": 4192,
+    "duplicatesMerged": 2129,
+    "retained": 2063,
     "sources": {
-      "OpenStreetMap / Geofabrik": 2059
+      "OpenStreetMap / Geofabrik": 2063
     }
   }
 }
